@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <ostream>
 #include <string>
+#include <future>
+#include <thread>
+#include <chrono>
 #include <assert.h>
 
 template<typename T>
@@ -96,7 +99,7 @@ document_t& current(history_t& x)
 
 int main(int argc, char** argv)
 {
-/*  document_t document;
+  document_t document;
 
     document.emplace_back(0); 
     document.emplace_back(std::string("Hello!")); 
@@ -104,7 +107,6 @@ int main(int argc, char** argv)
     document.emplace_back(my_class_t());
 
     draw(document, std::cout, 0);
-*/
 
     history_t h(1);
 
@@ -117,6 +119,13 @@ int main(int argc, char** argv)
     commit(h);
 
     current(h)[0] = 42.5;
+
+    auto saving = std::async([document = current(h)]() {
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::cout << "---------- 'save' ----------" << std::endl;
+        draw(document, std::cout, 0); 
+    });
+
     current(h)[1] = std::string("World");
     current(h).emplace_back(current(h));
     current(h).emplace_back(my_class_t());
